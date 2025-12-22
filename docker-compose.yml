@@ -1,0 +1,72 @@
+services:
+  nginx:
+    image: nginx:latest
+    container_name: nginx-server
+    ports:
+      - "8088:80"
+    volumes:
+      - ./nginx/conf.d:/etc/nginx/conf.d
+      - ./www:/var/www/html
+    depends_on:
+      - php
+    networks:
+      - app-network
+    restart: unless-stopped
+
+  php:
+    build: .
+    container_name: php-fpm
+    environment:
+      DB_HOST: pg-primary        
+      DB_HOST_REPLICA: pg-replica 
+      DB_USER: ${DB_USER}
+      DB_PASSWORD: ${DB_PASSWORD}
+      DB_NAME: ${DB_NAME}
+      DB_PORT: 5432
+    volumes:
+      - ./www:/var/www/html
+    networks:
+      - app-network
+    restart: unless-stopped
+
+  pg-primary:
+    image: bitnami/postgresql:latest
+    container_name: pg-primary
+    environment:
+      - POSTGRESQL_USERNAME=${DB_USER}
+      - POSTGRESQL_PASSWORD=${DB_PASSWORD}
+      - POSTGRESQL_DATABASE=${DB_NAME}
+      - POSTGRESQL_POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
+      - POSTGRESQL_REPLICATION_MODE=master
+      - POSTGRESQL_REPLICATION_USER=${REPLICATION_USER}
+      - POSTGRESQL_REPLICATION_PASSWORD=${REPLICATION_PASSWORD}
+      - TZ=${TZ}
+    networks:
+      - app-network
+    volumes:
+      - pg_primary_data:/bitnami/postgresql
+    restart: unless-stopped
+
+  pg-replica:
+    image: bitnami/postgresql:latest
+    container_name: pg-replica
+    depends_on:
+      - pg-primary
+    environment:
+      - POSTGRESQL_MASTER_HOST=pg-primary
+      - POSTGRESQL_MASTER_PORT_NUMBER=5432
+      - POSTGRESQL_REPLICATION_MODE=slave
+      - POSTGRESQL_REPLICATION_USER=${REPLICATION_USER}
+      - POSTGRESQL_REPLICATION_PASSWORD=${REPLICATION_PASSWORD}
+      - POSTGRESQL_PASSWORD=${DB_PASSWORD} 
+      - TZ=${TZ}
+    networks:
+      - app-network
+    restart: unless-stopped
+
+networks:
+  app-network:
+    driver: bridge
+
+volumes:
+  pg_primary_data:

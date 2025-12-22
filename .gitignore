@@ -1,0 +1,5 @@
+.env
+mysql/
+mysql_data/
+pg_primary_data/
+.DS_Store
