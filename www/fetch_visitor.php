@@ -1,5 +1,4 @@
 <?php
-// Note: In docker-compose, we will set DB_HOST_REPLICA to point to 'pg-replica'
 $host = getenv('DB_HOST_REPLICA') ?: getenv('DB_HOST'); 
 $user = getenv('DB_USER');
 $pass = getenv('DB_PASSWORD');
