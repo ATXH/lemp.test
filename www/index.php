@@ -1,8 +1,4 @@
 <?php
-/**
- * 1. LOGIC SECTION (Must be before any HTML)
- */
-
 // Retrieve environment variables
 $host = getenv('DB_HOST');
 $user = getenv('DB_USER');
@@ -23,23 +19,19 @@ if ($dbconn) {
     )";
     pg_query($dbconn, $table_query);
 
-    // Handle Form Submission (The PRG Pattern)
+    // Handle Form Submission
     if ($_SERVER['REQUEST_METHOD'] === 'POST' && !empty($_POST['name'])) {
         $name = pg_escape_string($dbconn, $_POST['name']);
         $insert_query = "INSERT INTO visitors (name) VALUES ('$name')";
         $result = pg_query($dbconn, $insert_query);
         
         if ($result) {
-            // REDIRECT to the same page to prevent "Form Resubmission" popups
             header("Location: index.php?success=" . urlencode($name));
             exit(); 
         }
     }
 }
 
-/**
- * 2. DISPLAY SECTION (HTML starts here)
- */
 ?>
 <!DOCTYPE html>
 <html lang="en">

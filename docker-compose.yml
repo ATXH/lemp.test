@@ -112,7 +112,6 @@ services:
     depends_on:
       - php
 
-# THIS SECTION MUST BE AT THE BOTTOM AND NOT INDENTED
 networks:
   app-network:
     driver: bridge

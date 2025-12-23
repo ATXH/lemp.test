@@ -1,5 +1,5 @@
 .env
-mysql/
-mysql_data/
-pg_primary_data/
+pg_data_1/
+pg_data_2/
+*.log
 .DS_Store

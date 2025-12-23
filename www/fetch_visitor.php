@@ -14,7 +14,6 @@ if (!$dbconn) {
     exit;
 }
 
-// PostgreSQL query execution
 $result = pg_query($dbconn, "SELECT * FROM visitors ORDER BY visit_time DESC LIMIT 10");
 
 if (pg_num_rows($result) > 0) {

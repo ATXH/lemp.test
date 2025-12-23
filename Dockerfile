@@ -8,7 +8,7 @@ RUN apt-get update && apt-get install -y libpq-dev \
 # Set working directory
 WORKDIR /var/www/html
 
-# Copy your project files into the container
+# Copy project files into the container
 COPY . .
 
 # Expose PHP-FPM port
