@@ -1,16 +1,45 @@
 <?php
-// Retrieve environment variables defined in docker-compose.yml
+/**
+ * 1. LOGIC SECTION (Must be before any HTML)
+ */
+
+// Retrieve environment variables
 $host = getenv('DB_HOST');
 $user = getenv('DB_USER');
 $pass = getenv('DB_PASSWORD');
 $db   = getenv('DB_NAME');
 $port = getenv('DB_PORT') ?: '5432';
 
-// Create the PostgreSQL connection string
 $conn_str = "host=$host port=$port dbname=$db user=$user password=$pass connect_timeout=5";
-
-// Establish connection
 $dbconn = @pg_connect($conn_str);
+
+// If connection is successful, handle table creation and form logic
+if ($dbconn) {
+    // Create table if it doesn't exist
+    $table_query = "CREATE TABLE IF NOT EXISTS visitors (
+        id SERIAL PRIMARY KEY,
+        name VARCHAR(50) NOT NULL,
+        visit_time TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+    )";
+    pg_query($dbconn, $table_query);
+
+    // Handle Form Submission (The PRG Pattern)
+    if ($_SERVER['REQUEST_METHOD'] === 'POST' && !empty($_POST['name'])) {
+        $name = pg_escape_string($dbconn, $_POST['name']);
+        $insert_query = "INSERT INTO visitors (name) VALUES ('$name')";
+        $result = pg_query($dbconn, $insert_query);
+        
+        if ($result) {
+            // REDIRECT to the same page to prevent "Form Resubmission" popups
+            header("Location: index.php?success=" . urlencode($name));
+            exit(); 
+        }
+    }
+}
+
+/**
+ * 2. DISPLAY SECTION (HTML starts here)
+ */
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -20,7 +49,7 @@ $dbconn = @pg_connect($conn_str);
   <style>
     body { font-family: "Segoe UI", Roboto, sans-serif; background: #f5f7fa; color: #333; margin: 0; padding: 0; }
     .container { max-width: 800px; margin: 80px auto; background: #fff; border-radius: 16px; box-shadow: 0 6px 20px rgba(0,0,0,0.1); padding: 40px; text-align: center; }
-    h1 { color: #336791; } /* PostgreSQL Blue */
+    h1 { color: #336791; }
     .status { font-size: 1.2em; margin: 15px 0; }
     .success { color: #28a745; }
     .error { color: #dc3545; }
@@ -44,31 +73,12 @@ $dbconn = @pg_connect($conn_str);
     <?php else: ?>
       <p class="status success">✅ Connected to <strong>Primary Database</strong> successfully!</p>
 
-      <?php
-      // 1. Create table if it doesn't exist (using SERIAL for auto-increment)
-      $table_query = "CREATE TABLE IF NOT EXISTS visitors (
-          id SERIAL PRIMARY KEY,
-          name VARCHAR(50) NOT NULL,
-          visit_time TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-      )";
-      pg_query($dbconn, $table_query);
-
-      // 2. Handle Form Submission (Write to Primary)
-      if ($_SERVER['REQUEST_METHOD'] === 'POST' && !empty($_POST['name'])) {
-          $name = pg_escape_string($dbconn, $_POST['name']);
-          $insert_query = "INSERT INTO visitors (name) VALUES ('$name')";
-          $result = pg_query($dbconn, $insert_query);
-          
-          if ($result) {
-              echo "<p class='success'>🙌 Thanks for visiting, <strong>" . htmlspecialchars($name) . "</strong>!</p>";
-          } else {
-              echo "<p class='error'>❌ Error saving visitor.</p>";
-          }
-      }
-      ?>
+      <?php if (isset($_GET['success'])): ?>
+        <p class="success">🙌 Thanks for visiting, <strong><?= htmlspecialchars($_GET['success']) ?></strong>!</p>
+      <?php endif; ?>
 
       <div class="form-container">
-        <form method="POST">
+        <form method="POST" action="index.php">
           <input type="text" name="name" placeholder="Enter your name" required>
           <button type="submit">Add Visitor</button>
         </form>
@@ -89,7 +99,6 @@ $dbconn = @pg_connect($conn_str);
   </div>
 
   <script>
-    // Fetch visitors via AJAX every 5 seconds
     async function loadVisitors() {
       try {
           const response = await fetch('fetch_visitor.php');
