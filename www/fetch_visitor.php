@@ -1,5 +1,5 @@
 <?php
-$host = getenv('DB_HOST_REPLICA') ?: getenv('DB_HOST'); 
+$host = getenv('DB_HOST'); 
 $user = getenv('DB_USER');
 $pass = getenv('DB_PASSWORD');
 $db   = getenv('DB_NAME');
@@ -9,7 +9,7 @@ $conn_str = "host=$host port=$port dbname=$db user=$user password=$pass connect_
 $dbconn = @pg_connect($conn_str);
 
 if (!$dbconn) {
-    echo "<p class='error'>❌ Failed to connect to Replica database.</p>";
+    echo "<p class='error'>❌ Failed to connect to database.</p>";
     exit;
 }
 

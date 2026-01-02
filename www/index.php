@@ -37,7 +37,7 @@ if ($dbconn) {
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>LEMP Stack - PostgreSQL Replication</title>
+  <title>LEMP Stack - PostgreSQL Replication - V1.0</title>
   <style>
     body { font-family: "Segoe UI", Roboto, sans-serif; background: #f5f7fa; color: #333; margin: 0; padding: 0; }
     .container { max-width: 800px; margin: 80px auto; background: #fff; border-radius: 16px; box-shadow: 0 6px 20px rgba(0,0,0,0.1); padding: 40px; text-align: center; }
