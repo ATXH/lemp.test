@@ -58,7 +58,7 @@ if ($dbconn) {
 </head>
 <body>
   <div class="container">
-    <h1>🚀 LEMP Stack (PostgreSQL Edition)</h1>
+    <h1>🚀 LEMP Stack (PostgreSQL Edition V1)</h1>
 
     <?php if (!$dbconn): ?>
       <p class="status error">❌ PostgreSQL connection failed to host: <?= htmlspecialchars($host) ?></p>
