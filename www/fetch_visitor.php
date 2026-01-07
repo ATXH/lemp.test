@@ -16,12 +16,14 @@ if (!$dbconn) {
 $result = pg_query($dbconn, "SELECT * FROM visitors ORDER BY visit_time DESC LIMIT 10");
 
 if (pg_num_rows($result) > 0) {
+    // UPDATED: Added "Guests" Header
     echo "<table>
-            <tr><th>ID</th><th>Name</th><th>Visit Time</th></tr>";
+            <tr><th>ID</th><th>Name</th><th>Guests</th><th>Visit Time</th></tr>";
     while ($row = pg_fetch_assoc($result)) {
         echo "<tr>
                 <td>{$row['id']}</td>
                 <td>" . htmlspecialchars($row['name']) . "</td>
+                <td>" . htmlspecialchars($row['guest_count'] ?? '1') . "</td>
                 <td>{$row['visit_time']}</td>
               </tr>";
     }
